@@ -1,8 +1,10 @@
 import { AIResponse } from "@/types/api";
 
 export async function fetchAIResponse(query: string): Promise<AIResponse> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3006';
+  
   try {
-    const response = await fetch('/api/analyze', {
+    const response = await fetch(`${apiUrl}/api/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -11,10 +13,12 @@ export async function fetchAIResponse(query: string): Promise<AIResponse> {
     });
     
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to fetch response');
     }
     
-    return response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('Error fetching AI response:', error);
     throw error;
