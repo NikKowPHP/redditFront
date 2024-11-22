@@ -179,18 +179,22 @@ export default function Home() {
                           <span className="text-gray-400">•</span>
                           <div>
                             <p className="mb-2">{point.text}</p>
-                            <div className="flex gap-2 flex-wrap">
+                            <div className="flex flex-col gap-2">
                               {point.sources.map((source, sourceIndex) => (
-                                <a
-                                  key={sourceIndex}
-                                  href={source.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-sm text-blue-500 hover:underline flex items-center gap-1"
-                                >
-                                  <span>Source {sourceIndex + 1}</span>
-                                  <ArrowUpRight className="w-3 h-3" />
-                                </a>
+                                <div key={sourceIndex} className="flex flex-col gap-1">
+                                  <a
+                                    href={source.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-blue-500 hover:underline flex items-center gap-1"
+                                  >
+                                    <span>Source {sourceIndex + 1}</span>
+                                    <ArrowUpRight className="w-3 h-3" />
+                                  </a>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {source.hover_text}
+                                  </p>
+                                </div>
                               ))}
                             </div>
                           </div>
