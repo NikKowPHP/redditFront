@@ -142,37 +142,55 @@ export default function Home() {
     setQuery('');
   }, []);
 
-  // Add this section to your JSX where appropriate
+  // Update the renderHistory function with matching design patterns
   const renderHistory = () => (
-    <div className="mt-8">
+    <div className="space-y-6">
       {history.length > 0 && (
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Recent Searches</h2>
-          <button
-            onClick={clearHistory}
-            className="text-sm text-red-500 hover:text-red-600 transition-colors"
-          >
-            Clear History
-          </button>
-        </div>
-      )}
-      <div className="space-y-4">
-        {history.map((item) => (
-          <div
-            key={item.id}
-            className="p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
-            onClick={() => {
-              setQuery(item.query);
-              setResponse(item.response);
-            }}
-          >
-            <p className="font-medium mb-2">{item.query}</p>
-            <p className="text-sm text-gray-500">
-              {new Date(item.timestamp).toLocaleDateString()}
-            </p>
+        <>
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold">Recent Searches</h2>
+              <button
+                onClick={clearHistory}
+                className="text-sm text-red-500 hover:text-red-600 transition-colors duration-200 flex items-center gap-1"
+              >
+                Clear History
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {history.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => {
+                  setQuery(item.query);
+                  setResponse(item.response);
+                }}
+                className="
+                  rounded-2xl border border-gray-200 dark:border-gray-800 p-6
+                  hover:border-gray-300 dark:hover:border-gray-700
+                  transition-all duration-200 ease-in-out
+                  cursor-pointer group
+                  bg-transparent hover:bg-gray-50 dark:hover:bg-gray-900
+                "
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="font-medium line-clamp-2 group-hover:text-blue-500 transition-colors duration-200">
+                    {item.query}
+                  </h3>
+                  <Search className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors duration-200" />
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <span>{new Date(item.timestamp).toLocaleDateString()}</span>
+                  <span>•</span>
+                  <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 
@@ -191,7 +209,7 @@ export default function Home() {
             ${!response && !loading ? 'opacity-100 transform-none' : 'opacity-0 absolute pointer-events-none'}
           `}
         >
-          <div className="flex flex-col items-center justify-center min-h-[80vh]">
+          <div className="flex flex-col items-center justify-center min-h-[50vh]">
             <h1 className="text-4xl font-bold mb-8 transition-transform duration-300">Ask anything</h1>
             <div className="w-full max-w-2xl transform transition-transform duration-300">
               <SearchForm
@@ -201,6 +219,9 @@ export default function Home() {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
+            
+            {/* Add history section here */}
+            {!loading && renderHistory()}
           </div>
         </div>
 
@@ -300,9 +321,6 @@ export default function Home() {
             )}
           </div>
         )}
-
-        {/* Add the history section to your main content area when no response is showing */}
-        {!response && !loading && renderHistory()}
       </main>
     </div>
   );
