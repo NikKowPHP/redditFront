@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { fetchAIResponse } from '@/services/api';
 import type { AIResponse } from '@/types/api';
-import { ArrowUpRight, Search, ExternalLink } from 'lucide-react';
+import { ArrowUpRight, Search, ExternalLink, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/Skeleton';
 
 // Move LoadingSkeleton outside the main component
@@ -154,19 +154,30 @@ export default function Home() {
 
                 <div className="grid grid-cols-3 gap-4">
                   {response?.sources.map((source, index) => (
-                    <a
-                      key={index}
-                      href={source.post_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
+                    <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
+                      <div className="flex items-start justify-between mb-2">
                         <h3 className="font-medium text-sm line-clamp-2">{source.post_title}</h3>
-                        <ExternalLink className="w-4 h-4 flex-shrink-0 ml-2" />
+                        <div className="flex gap-2 flex-shrink-0">
+                          <a
+                            href={`https://reddit.com/r/${source.subreddit}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                          </a>
+                          <a
+                            href={source.post_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-500 mt-2">r/{source.subreddit}</p>
-                    </a>
+                      <p className="text-sm text-gray-500">r/{source.subreddit}</p>
+                    </div>
                   ))}
                 </div>
 
