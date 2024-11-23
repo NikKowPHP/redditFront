@@ -65,24 +65,38 @@ const SearchForm = ({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
 }) => (
-  <form onSubmit={onSubmit} className={className}>
+  <form 
+    onSubmit={onSubmit} 
+    className={`transition-all duration-300 ease-in-out transform ${className}`}
+  >
     <div className="relative">
       <input
         type="text"
         value={query}
         onChange={onChange}
-        className="w-full p-4 pr-12 text-lg rounded-2xl border border-gray-200 dark:border-gray-800 bg-transparent"
+        className="
+          w-full p-4 pr-12 text-lg
+          rounded-2xl border border-gray-200 dark:border-gray-800
+          bg-transparent
+          transition-all duration-200 ease-in-out
+          focus:ring-2 focus:ring-blue-500 focus:border-transparent
+          hover:border-gray-300 dark:hover:border-gray-700
+        "
         placeholder="Enter your question..."
       />
       <button
         type="submit"
         disabled={loading}
-        className="absolute right-3 top-1/2 -translate-y-1/2"
+        className="
+          absolute right-3 top-1/2 -translate-y-1/2
+          transition-all duration-200 ease-in-out
+          hover:scale-110
+        "
       >
         {loading ? (
           <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-500 border-t-transparent" />
         ) : (
-          <Search className="w-6 h-6 text-gray-500" />
+          <Search className="w-6 h-6 text-gray-500 transition-colors duration-200 hover:text-gray-700 dark:hover:text-gray-300" />
         )}
       </button>
     </div>
@@ -121,27 +135,46 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-[#0A0A0A]">
       <main className="max-w-3xl mx-auto px-4 py-8">
-        {!response && !loading ? (
+        {/* Initial centered search form */}
+        <div 
+          className={`
+            transition-opacity duration-300 ease-in-out
+            ${!response && !loading ? 'opacity-100 transform-none' : 'opacity-0 absolute pointer-events-none'}
+          `}
+        >
           <div className="flex flex-col items-center justify-center min-h-[80vh]">
-            <h1 className="text-4xl font-bold mb-8">Ask anything</h1>
-            <SearchForm
-              query={query}
-              loading={loading}
-              onSubmit={handleSubmit}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+            <h1 className="text-4xl font-bold mb-8 transition-transform duration-300">Ask anything</h1>
+            <div className="w-full max-w-2xl transform transition-transform duration-300">
+              <SearchForm
+                query={query}
+                loading={loading}
+                onSubmit={handleSubmit}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
           </div>
-        ) : null}
+        </div>
 
+        {/* Top sticky search form */}
         {(response || loading) && mounted && (
           <div className="space-y-8">
-            <SearchForm
-              query={query}
-              loading={loading}
-              onSubmit={handleSubmit}
-              onChange={(e) => setQuery(e.target.value)}
-              className="sticky top-4 z-10 bg-white dark:bg-[#0A0A0A] pt-4 pb-2"
-            />
+            <div className="sticky top-4 z-10 transition-all duration-300 ease-in-out">
+              <div 
+                className="
+                  transform transition-all duration-300 ease-in-out
+                  backdrop-blur-md bg-white/80 dark:bg-[#0A0A0A]/80
+                  rounded-2xl shadow-sm
+                "
+              >
+                <SearchForm
+                  query={query}
+                  loading={loading}
+                  onSubmit={handleSubmit}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="pt-4 pb-2"
+                />
+              </div>
+            </div>
 
             {loading ? (
               <LoadingSkeleton />
