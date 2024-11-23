@@ -1,4 +1,5 @@
 import { AIResponse } from "@/types/api";
+import { storageService } from "./storage";
 
 export async function fetchAIResponse(query: string): Promise<AIResponse> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3006';
@@ -18,6 +19,10 @@ export async function fetchAIResponse(query: string): Promise<AIResponse> {
     }
     
     const data = await response.json();
+    
+    // Save the response to storage
+    storageService.saveChat(query, data);
+    
     return data;
   } catch (error) {
     console.error('Error fetching AI response:', error);

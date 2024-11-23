@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchAIResponse } from '@/services/api';
 import type { AIResponse } from '@/types/api';
 import { ArrowUpRight, Search, ExternalLink, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/Skeleton';
+import { storageService, StoredChatItem } from '@/services/storage';
 
 // Move LoadingSkeleton outside the main component
 const LoadingSkeleton = () => (
@@ -108,24 +109,72 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState<AIResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<StoredChatItem[]>([]);
 
   // Handle hydration mismatch
   useEffect(() => {
     setMounted(true);
+    // Load chat history when component mounts
+    setHistory(storageService.getChatHistory());
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!query.trim()) return;
+    
     setLoading(true);
     try {
       const result = await fetchAIResponse(query);
       setResponse(result);
+      // Update history after new response
+      setHistory(storageService.getChatHistory());
     } catch (error) {
       console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const clearHistory = useCallback(() => {
+    storageService.clearHistory();
+    setHistory([]);
+    setResponse(null);
+    setQuery('');
+  }, []);
+
+  // Add this section to your JSX where appropriate
+  const renderHistory = () => (
+    <div className="mt-8">
+      {history.length > 0 && (
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Recent Searches</h2>
+          <button
+            onClick={clearHistory}
+            className="text-sm text-red-500 hover:text-red-600 transition-colors"
+          >
+            Clear History
+          </button>
+        </div>
+      )}
+      <div className="space-y-4">
+        {history.map((item) => (
+          <div
+            key={item.id}
+            className="p-4 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
+            onClick={() => {
+              setQuery(item.query);
+              setResponse(item.response);
+            }}
+          >
+            <p className="font-medium mb-2">{item.query}</p>
+            <p className="text-sm text-gray-500">
+              {new Date(item.timestamp).toLocaleDateString()}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
@@ -251,6 +300,9 @@ export default function Home() {
             )}
           </div>
         )}
+
+        {/* Add the history section to your main content area when no response is showing */}
+        {!response && !loading && renderHistory()}
       </main>
     </div>
   );
