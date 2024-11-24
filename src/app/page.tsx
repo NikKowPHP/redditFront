@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchAIResponse } from '@/services/api';
 import type { AIResponse } from '@/types/api';
-import { ArrowUpRight, Search, ExternalLink, MessageSquare } from 'lucide-react';
+import { ArrowUpRight, Search, ExternalLink, MessageSquare  } from 'lucide-react';
 import { Skeleton } from '@/components/Skeleton';
 import { storageService, StoredChatItem } from '@/services/storage';
+import { Sidebar } from '@/components/Sidebar';
 
 // Move LoadingSkeleton outside the main component
 const LoadingSkeleton = () => (
@@ -201,127 +202,130 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0A0A0A]">
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        {/* Initial centered search form */}
-        <div 
-          className={`
-            transition-opacity duration-300 ease-in-out
-            ${!response && !loading ? 'opacity-100 transform-none' : 'opacity-0 absolute pointer-events-none'}
-          `}
-        >
-          <div className="flex flex-col items-center justify-center min-h-[50vh]">
-            <h1 className="text-4xl font-bold mb-8 transition-transform duration-300">Ask anything</h1>
-            <div className="w-full max-w-2xl transform transition-transform duration-300">
-              <SearchForm
-                query={query}
-                loading={loading}
-                onSubmit={handleSubmit}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            
-            {/* Add history section here */}
-            {!loading && renderHistory()}
-          </div>
-        </div>
-
-        {/* Top sticky search form */}
-        {(response || loading) && mounted && (
-          <div className="space-y-8">
-            <div className="sticky top-4 z-10 transition-all duration-300 ease-in-out">
-              <div 
-                className="
-                  transform transition-all duration-300 ease-in-out
-                  backdrop-blur-md bg-white/80 dark:bg-[#0A0A0A]/80
-                  rounded-2xl shadow-sm
-                "
-              >
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {!response && !loading ? (
+          // Initial centered search form
+          <main className="max-w-3xl mx-auto">
+            <div className="flex flex-col items-center justify-center min-h-[50vh]">
+              <h1 className="text-4xl font-bold mb-8">Ask anything</h1>
+              <div className="w-full max-w-2xl">
                 <SearchForm
                   query={query}
                   loading={loading}
                   onSubmit={handleSubmit}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="pt-4 pb-2"
                 />
               </div>
+              {!loading && renderHistory()}
             </div>
-
-            {loading ? (
-              <LoadingSkeleton />
-            ) : (
-              <div className="space-y-6 pt-4">
-                <div className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-                  <h2 className="text-xl font-semibold mb-4">{response?.tldr.title}</h2>
-                  <p className="text-gray-700 dark:text-gray-300">{response?.tldr.concise_summary}</p>
+          </main>
+        ) : (
+          // Content with sidebar layout
+          <div className="flex flex-col lg:flex-row gap-8">
+            <main className="flex-1 min-w-0">
+              <div className="space-y-8">
+                <div className="sticky top-4 z-10">
+                  <div className="backdrop-blur-md bg-white/80 dark:bg-[#0A0A0A]/80 rounded-2xl shadow-sm">
+                    <SearchForm
+                      query={query}
+                      loading={loading}
+                      onSubmit={handleSubmit}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="pt-4 pb-2"
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  {response?.sources.map((source, index) => (
-                    <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-medium text-sm line-clamp-2">{source.post_title}</h3>
-                        <div className="flex gap-2 flex-shrink-0">
-                          <a
-                            href={`https://reddit.com/r/${source.subreddit}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                          </a>
-                          <a
-                            href={source.post_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-500">r/{source.subreddit}</p>
+                {loading ? (
+                  <LoadingSkeleton />
+                ) : (
+                  <div className="space-y-6 pt-4">
+                    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+                      <h2 className="text-xl font-semibold mb-4">{response?.tldr.title}</h2>
+                      <p className="text-gray-700 dark:text-gray-300">{response?.tldr.concise_summary}</p>
                     </div>
-                  ))}
-                </div>
 
-                {response?.main_sections.map((section, index) => (
-                  <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-                    <h3 className="text-lg font-semibold mb-4">{section.section_title}</h3>
-                    <ul className="space-y-4">
-                      {section.points.map((point, pointIndex) => (
-                        <li key={pointIndex} className="flex gap-3">
-                          <span className="text-gray-400">•</span>
-                          <div>
-                            <p className="mb-2">{point.text}</p>
-                            <div className="flex flex-col gap-2">
-                              {point.sources.map((source, sourceIndex) => (
-                                <div key={sourceIndex} className="flex flex-col gap-1">
-                                  <a
-                                    href={source.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm text-blue-500 hover:underline flex items-center gap-1"
-                                  >
-                                    <span>Source {sourceIndex + 1}</span>
-                                    <ArrowUpRight className="w-3 h-3" />
-                                  </a>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {source.hover_text}
-                                  </p>
-                                </div>
-                              ))}
+                    <div className="grid grid-cols-3 gap-4">
+                      {response?.sources.map((source, index) => (
+                        <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="font-medium text-sm line-clamp-2">{source.post_title}</h3>
+                            <div className="flex gap-2 flex-shrink-0">
+                              <a
+                                href={`https://reddit.com/r/${source.subreddit}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                              </a>
+                              <a
+                                href={source.post_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
                             </div>
                           </div>
-                        </li>
+                          <p className="text-sm text-gray-500">r/{source.subreddit}</p>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
+
+                    {response?.main_sections.map((section, index) => (
+                      <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+                        <h3 className="text-lg font-semibold mb-4">{section.section_title}</h3>
+                        <ul className="space-y-4">
+                          {section.points.map((point, pointIndex) => (
+                            <li key={pointIndex} className="flex gap-3">
+                              <span className="text-gray-400">•</span>
+                              <div>
+                                <p className="mb-2">{point.text}</p>
+                                <div className="flex flex-col gap-2">
+                                  {point.sources.map((source, sourceIndex) => (
+                                    <div key={sourceIndex} className="flex flex-col gap-1">
+                                      <a
+                                        href={source.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-sm text-blue-500 hover:underline flex items-center gap-1"
+                                      >
+                                        <span>Source {sourceIndex + 1}</span>
+                                        <ArrowUpRight className="w-3 h-3" />
+                                      </a>
+                                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        {source.hover_text}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            )}
+            </main>
+
+            {/* Sidebar */}
+            <Sidebar
+              history={history}
+              currentQuery={query}
+              onClearHistory={clearHistory}
+              onSelectHistory={(query, response) => {
+                setQuery(query);
+                setResponse(response);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
