@@ -8,6 +8,7 @@ import {
   Search,
   ExternalLink,
   MessageSquare,
+  Trash2,
 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 import { storageService, StoredChatItem } from "@/services/storage";
@@ -214,17 +215,67 @@ export default function Home() {
         {!response && !loading ? (
           // Initial centered search form
           <main className="max-w-3xl mx-auto">
-            <div className="flex flex-col items-center justify-center min-h-[50vh]">
-              <h1 className="text-4xl font-bold mb-8">Ask anything</h1>
-              <div className="w-full max-w-2xl">
+            <div className="flex flex-col items-center justify-center min-h-[70vh]">
+              <h1 className="text-5xl font-bold mb-12 bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400 bg-clip-text text-transparent">
+                Ask anything
+              </h1>
+              <div className="w-full max-w-2xl transform transition-all duration-300 ease-in-out 
+                hover:scale-[1.02] focus-within:scale-[1.02]">
                 <SearchForm
                   query={query}
                   loading={loading}
                   onSubmit={handleSubmit}
                   onChange={(e) => setQuery(e.target.value)}
+                  className="shadow-lg hover:shadow-xl transition-shadow duration-300"
                 />
               </div>
-              {!loading && renderHistory()}
+              
+              {/* History section below search */}
+              {history.length > 0 && !loading && (
+                <div className="w-full max-w-2xl mt-16 space-y-6 opacity-80 hover:opacity-100 transition-opacity duration-300">
+                  <div className="flex justify-between items-center px-2">
+                    <h2 className="text-lg font-medium text-secondary-text/70 dark:text-secondary-textDark/70">
+                      Recent Searches
+                    </h2>
+                    <button
+                      onClick={clearHistory}
+                      className="text-sm text-accent-red/70 hover:text-accent-red transition-colors duration-200 
+                        flex items-center gap-1.5 rounded-lg px-2 py-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Clear</span>
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    {history.slice(0, 5).map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          setQuery(item.query);
+                          setResponse(item.response);
+                        }}
+                        className="
+                          rounded-xl p-3 cursor-pointer group
+                          border border-secondary-border/30 dark:border-secondary-borderDark/30
+                          hover:border-accent-blue/50 dark:hover:border-accent-blueDark/50
+                          hover:bg-primary-background/50 dark:hover:bg-primary-backgroundDark/50
+                          transition-all duration-200
+                        "
+                      >
+                        <div className="flex items-center gap-3">
+                          <Search className="w-4 h-4 text-secondary-text/30 dark:text-secondary-textDark/30 
+                            group-hover:text-accent-blue/70 dark:group-hover:text-accent-blueDark/70" />
+                          <span className="text-sm text-secondary-text/70 dark:text-secondary-textDark/70 
+                            group-hover:text-accent-blue dark:group-hover:text-accent-blueDark">
+                            {item.query}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </main>
         ) : (
