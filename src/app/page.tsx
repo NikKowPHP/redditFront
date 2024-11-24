@@ -249,29 +249,62 @@ export default function Home() {
                 ) : (
                   <div className="space-y-8">
 
-                         {/* Sources Grid */}
-                    <div className="grid grid-cols-3 gap-6">
-                      {response?.sources.map((source, index) => (
-                        <div
-                          key={index}
-                          className="rounded-2xl border border-secondary-border dark:border-secondary-borderDark 
-          bg-primary-surface dark:bg-primary-surfaceDark p-6 
-          hover:border-accent-blue dark:hover:border-accent-blueDark
-          transition-all duration-200"
-                        >
-                          <div className="flex items-start justify-between gap-4">
-                            <h3 className="font-medium text-sm text-secondary-text dark:text-secondary-textDark line-clamp-2">
-                              {source.post_title}
-                            </h3>
-                            <div className="flex gap-2 flex-shrink-0">
-                              {/* ... existing source links ... */}
+                         {/* Sources Section */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-medium text-secondary-text dark:text-secondary-textDark">
+                          Discussion Sources
+                        </h2>
+                        <span className="text-sm text-secondary-text/60 dark:text-secondary-textDark/60">
+                          {response?.stats.relevant_discussions} discussions found
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {response?.sources.map((source, index) => (
+                          <div
+                            key={index}
+                            className="group rounded-xl border border-secondary-border dark:border-secondary-borderDark 
+                              bg-primary-surface dark:bg-primary-surfaceDark p-4
+                              hover:border-accent-blue dark:hover:border-accent-blueDark
+                              transition-all duration-200"
+                          >
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                              <h3 className="font-medium text-sm line-clamp-2 text-secondary-text dark:text-secondary-textDark group-hover:text-accent-blue dark:group-hover:text-accent-blueDark">
+                                {source.post_title}
+                              </h3>
+                              <div className="flex gap-2 flex-shrink-0">
+                                <a
+                                  href={`https://reddit.com/r/${source.subreddit}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-secondary-text/40 hover:text-accent-blue dark:text-secondary-textDark/40 dark:hover:text-accent-blueDark
+                                    transition-colors duration-200"
+                                >
+                                  <MessageSquare className="w-4 h-4" />
+                                </a>
+                                <a
+                                  href={source.post_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-secondary-text/40 hover:text-accent-blue dark:text-secondary-textDark/40 dark:hover:text-accent-blueDark
+                                    transition-colors duration-200"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-secondary-text/60 dark:text-secondary-textDark/60">
+                                r/{source.subreddit}
+                              </span>
+                              <span className="text-xs text-secondary-text/40 dark:text-secondary-textDark/40">
+                                {source.relevance_score}% relevant
+                              </span>
                             </div>
                           </div>
-                          <p className="text-sm text-secondary-text/60 dark:text-secondary-textDark/60 mt-3">
-                            r/{source.subreddit}
-                          </p>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                     {/* TLDR Section */}
                     <div
