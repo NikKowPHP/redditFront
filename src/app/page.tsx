@@ -1,12 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { fetchAIResponse } from '@/services/api';
-import type { AIResponse } from '@/types/api';
-import { ArrowUpRight, Search, ExternalLink, MessageSquare  } from 'lucide-react';
-import { Skeleton } from '@/components/Skeleton';
-import { storageService, StoredChatItem } from '@/services/storage';
-import { Sidebar } from '@/components/Sidebar';
+import { useState, useEffect, useCallback } from "react";
+import { fetchAIResponse } from "@/services/api";
+import type { AIResponse } from "@/types/api";
+import {
+  ArrowUpRight,
+  Search,
+  ExternalLink,
+  MessageSquare,
+} from "lucide-react";
+import { Skeleton } from "@/components/Skeleton";
+import { storageService, StoredChatItem } from "@/services/storage";
+import { Sidebar } from "@/components/Sidebar";
 
 // Move LoadingSkeleton outside the main component
 const LoadingSkeleton = () => (
@@ -21,7 +26,10 @@ const LoadingSkeleton = () => (
     {/* Sources Grid Skeleton */}
     <div className="grid grid-cols-3 gap-4">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
+        <div
+          key={i}
+          className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4"
+        >
           <div className="flex items-start justify-between">
             <Skeleton className="h-4 w-4/5" />
             <Skeleton className="h-4 w-4" />
@@ -54,12 +62,12 @@ const LoadingSkeleton = () => (
 );
 
 // SearchForm component to reduce duplication
-const SearchForm = ({ 
-  query, 
-  loading, 
-  onSubmit, 
-  onChange, 
-  className = "" 
+const SearchForm = ({
+  query,
+  loading,
+  onSubmit,
+  onChange,
+  className = "",
 }: {
   query: string;
   loading: boolean;
@@ -67,8 +75,8 @@ const SearchForm = ({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
 }) => (
-  <form 
-    onSubmit={onSubmit} 
+  <form
+    onSubmit={onSubmit}
     className={`transition-all duration-300 ease-in-out transform ${className}`}
   >
     <div className="relative">
@@ -107,7 +115,7 @@ const SearchForm = ({
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [response, setResponse] = useState<AIResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<StoredChatItem[]>([]);
@@ -122,7 +130,7 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
-    
+
     setLoading(true);
     try {
       const result = await fetchAIResponse(query);
@@ -130,7 +138,7 @@ export default function Home() {
       // Update history after new response
       setHistory(storageService.getChatHistory());
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -140,7 +148,7 @@ export default function Home() {
     storageService.clearHistory();
     setHistory([]);
     setResponse(null);
-    setQuery('');
+    setQuery("");
   }, []);
 
   // Update the renderHistory function with matching design patterns
@@ -239,44 +247,55 @@ export default function Home() {
                 {loading ? (
                   <LoadingSkeleton />
                 ) : (
-                  <div className="space-y-6 pt-4">
-                    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-                      <h2 className="text-xl font-semibold mb-4">{response?.tldr.title}</h2>
-                      <p className="text-gray-700 dark:text-gray-300">{response?.tldr.concise_summary}</p>
-                    </div>
+                  <div className="space-y-8">
 
-                    <div className="grid grid-cols-3 gap-4">
+                         {/* Sources Grid */}
+                    <div className="grid grid-cols-3 gap-6">
                       {response?.sources.map((source, index) => (
-                        <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-medium text-sm line-clamp-2">{source.post_title}</h3>
+                        <div
+                          key={index}
+                          className="rounded-2xl border border-secondary-border dark:border-secondary-borderDark 
+          bg-primary-surface dark:bg-primary-surfaceDark p-6 
+          hover:border-accent-blue dark:hover:border-accent-blueDark
+          transition-all duration-200"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <h3 className="font-medium text-sm text-secondary-text dark:text-secondary-textDark line-clamp-2">
+                              {source.post_title}
+                            </h3>
                             <div className="flex gap-2 flex-shrink-0">
-                              <a
-                                href={`https://reddit.com/r/${source.subreddit}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                              >
-                                <MessageSquare className="w-4 h-4" />
-                              </a>
-                              <a
-                                href={source.post_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </a>
+                              {/* ... existing source links ... */}
                             </div>
                           </div>
-                          <p className="text-sm text-gray-500">r/{source.subreddit}</p>
+                          <p className="text-sm text-secondary-text/60 dark:text-secondary-textDark/60 mt-3">
+                            r/{source.subreddit}
+                          </p>
                         </div>
                       ))}
                     </div>
+                    {/* TLDR Section */}
+                    <div
+                      className="rounded-2xl border border-secondary-border dark:border-secondary-borderDark 
+    bg-primary-surface dark:bg-primary-surfaceDark p-8"
+                    >
+                      <h2 className="text-2xl font-medium mb-4 text-secondary-text dark:text-secondary-textDark">
+                        {response?.tldr.title}
+                      </h2>
+                      <p className="text-secondary-text/80 dark:text-secondary-textDark/80 leading-relaxed">
+                        {response?.tldr.concise_summary}
+                      </p>
+                    </div>
+
+                   
 
                     {response?.main_sections.map((section, index) => (
-                      <div key={index} className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-                        <h3 className="text-lg font-semibold mb-4">{section.section_title}</h3>
+                      <div
+                        key={index}
+                        className="rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+                      >
+                        <h3 className="text-lg font-semibold mb-4">
+                          {section.section_title}
+                        </h3>
                         <ul className="space-y-4">
                           {section.points.map((point, pointIndex) => (
                             <li key={pointIndex} className="flex gap-3">
@@ -285,7 +304,10 @@ export default function Home() {
                                 <p className="mb-2">{point.text}</p>
                                 <div className="flex flex-col gap-2">
                                   {point.sources.map((source, sourceIndex) => (
-                                    <div key={sourceIndex} className="flex flex-col gap-1">
+                                    <div
+                                      key={sourceIndex}
+                                      className="flex flex-col gap-1"
+                                    >
                                       <a
                                         href={source.url}
                                         target="_blank"
@@ -320,7 +342,7 @@ export default function Home() {
               onSelectHistory={(query, response) => {
                 setQuery(query);
                 setResponse(response);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             />
           </div>
